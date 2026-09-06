@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Minimal Focus Extension - Blocked Domains</title>
+    <link rel="stylesheet" href="options.css">
+    <script src="domains.js" defer></script>
+    <script src="options.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>Minimal Focus Extension</h1>
+      <label><input id="enabled" type="checkbox" disabled> Blocking enabled</label>
+      <form>
+        <p><label for="domains">Blocked domains</label></p>
+        <p id="hint">One domain per line. Includes subdomains. Blank lines and <code>#</code> comments are ignored.</p>
+        <textarea id="domains" aria-describedby="hint" spellcheck="false" autocapitalize="off" autocomplete="off" disabled></textarea>
+        <button type="submit" disabled>Save list</button>
+      </form>
+      <p id="status" role="status"></p>
+    </main>
+  </body>
+</html>

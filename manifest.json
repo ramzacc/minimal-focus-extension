@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "Minimal Focus Extension",
+  "version": "1.0.2",
+  "description": "Blocks a list of domains and their subdomains.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "firefox-focus@local.invalid",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": { "required": ["none"] }
+    }
+  },
+  "permissions": ["storage", "tabs", "webNavigation", "webRequest", "webRequestBlocking", "<all_urls>"],
+  "background": {
+    "scripts": ["domains.js", "background.js"],
+    "persistent": true
+  },
+  "browser_action": { "default_title": "Edit blocked domains" },
+  "options_ui": { "page": "options.html", "open_in_tab": true }
+}
