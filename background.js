@@ -19,6 +19,10 @@ function viewerTarget(url) {
   if (tweet) return `${browser.runtime.getURL("tweet.html")}?id=${encodeURIComponent(tweet)}`;
   const video = FocusDomains.videoId(url);
   if (video) return `${browser.runtime.getURL("youtube.html")}?v=${encodeURIComponent(video)}`;
+  const post = FocusDomains.instagramPost(url);
+  if (post) {
+    return `${browser.runtime.getURL("instagram.html")}?type=${post.type}&code=${encodeURIComponent(post.code)}`;
+  }
   return null;
 }
 
@@ -54,7 +58,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(
     requestHeaders.push({ name: "Referer", value: playerReferrer });
     return { requestHeaders };
   },
-  { urls: ["https://www.youtube.com/*", "https://www.youtube-nocookie.com/*"] },
+  { urls: ["https://www.youtube.com/*", "https://www.youtube-nocookie.com/*", "https://www.instagram.com/*"] },
   ["blocking", "requestHeaders"]
 );
 

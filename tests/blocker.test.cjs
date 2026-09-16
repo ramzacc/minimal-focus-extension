@@ -223,16 +223,39 @@ test("presents an https Referer for player loads started by the viewers", () => 
   assert.equal(JSON.parse(JSON.stringify(nested.requestHeaders)).at(-1).value, "https://github.com/");
 });
 
+test("parses Instagram post, reel and tv codes", () => {
+  const { domains } = setup();
+  const post = url => JSON.parse(JSON.stringify(domains.instagramPost(url)));
+  assert.deepEqual(post("https://www.instagram.com/p/Cabc123XYZ/"), { type: "p", code: "Cabc123XYZ" });
+  assert.deepEqual(post("https://instagram.com/reel/Cabc123XYZ/?utm=1"), { type: "reel", code: "Cabc123XYZ" });
+  assert.deepEqual(post("https://m.instagram.com/tv/Cabc123XYZ"), { type: "tv", code: "Cabc123XYZ" });
+  assert.deepEqual(post("https://www.instagram.com/reels/Cabc123XYZ/"), { type: "reel", code: "Cabc123XYZ" });
+  for (const url of ["https://www.instagram.com/", "https://www.instagram.com/someuser/",
+    "https://www.instagram.com/stories/someuser/12345/", "https://example.org/p/Cabc123XYZ/", "invalid"]) {
+    assert.equal(domains.instagramPost(url), null, url);
+  }
+});
+
+test("Instagram links open the viewer and embed resources stay loadable", async () => {
+  const { listeners } = setup();
+  assert.equal((await listeners.request({ url: "https://www.instagram.com/p/Cabc123XYZ/", type: "main_frame" })).redirectUrl,
+    "moz-extension://focus/instagram.html?type=p&code=Cabc123XYZ");
+  assert.equal((await listeners.request({ url: "https://www.instagram.com/", type: "main_frame" })).cancel, true);
+  assert.equal((await listeners.request({ url: "https://www.instagram.com/p/Cabc123XYZ/embed/captioned/?cr=1", type: "sub_frame" })).cancel, false);
+  assert.equal((await listeners.request({ url: "https://www.instagram.com/static/bundles/app.js", type: "script" })).cancel, false);
+  assert.equal((await listeners.request({ url: "https://scontent.cdninstagram.com/v/t51/photo.jpg", type: "image" })).cancel, false);
+  assert.equal((await listeners.request({ url: "https://scontent.xx.fbcdn.net/v/t51/photo.jpg", type: "image" })).cancel, false);
+});
+
 test("does not restart an in-flight viewer navigation, avoiding a redirect loop", async () => {
   const { listeners } = setup(Promise.resolve({}), [
     { id: 1, url: "https://example.org", pendingUrl: "https://x.com/jack/status/20" },
     { id: 2, url: "https://x.com/jack/status/20", pendingUrl: "moz-extension://focus/tweet.html?id=20" },
-    { id: 3, url: "https://example.org", pendingUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }
+    { id: 3, url: "https://example.org", pendingUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" },
+    { id: 4, url: "https://example.org", pendingUrl: "https://www.instagram.com/p/Cabc123XYZ/" }
   ]);
   await flush();
-  await listeners.updated(1, { status: "loading" });
-  await listeners.updated(2, { status: "loading" });
-  await listeners.updated(3, { status: "loading" });
+  for (const id of [1, 2, 3, 4]) await listeners.updated(id, { status: "loading" });
   assert.equal(listeners.updates.length, 0);
 });
 

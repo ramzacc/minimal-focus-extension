@@ -38,9 +38,10 @@ globalThis.FocusDomains = {
     return [...domains].some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
   },
 
-  // Hosts and paths the viewers need (tweet media + syndication API, and the
-  // no-cookie YouTube player). Exempt so content renders without the feed.
-  embedDomains: ["twimg.com"],
+  // Hosts and paths the viewers need (tweet media + syndication API, the
+  // no-cookie YouTube player, and Instagram's embedded post app). Exempt so
+  // content renders without the feed; top-level browsing stays blocked.
+  embedDomains: ["twimg.com", "instagram.com", "cdninstagram.com", "fbcdn.net", "facebook.com", "facebook.net"],
   embedPaths: [/^\/(?:s\/player|youtubei|yts|api|pagead|ptracking|pcs)\//, /^\/(?:generate_204|csi_204|sw\.js)$/],
 
   isEmbedAsset(url) {
@@ -93,5 +94,20 @@ globalThis.FocusDomains = {
     const match = path.match(/^\/(?:embed|shorts|live|v)\/([A-Za-z0-9_-]{11})/) ||
       (hostname === "youtu.be" ? path.match(/^([A-Za-z0-9_-]{11})(?:\/|$)/) : null);
     return match ? match[1] : null;
+  },
+
+  // Returns { type, code } for an Instagram post/reel/tv URL, or null.
+  instagramPost(url) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return null;
+    }
+    const hostname = parsed.hostname.replace(/\.$/, "");
+    if (!(hostname === "instagram.com" || hostname.endsWith(".instagram.com"))) return null;
+    const match = parsed.pathname.match(/^\/(p|reel|reels|tv)\/([A-Za-z0-9_-]{5,20})(?:\/|$)/);
+    if (!match) return null;
+    return { type: match[1] === "reels" ? "reel" : match[1], code: match[2] };
   }
 };
