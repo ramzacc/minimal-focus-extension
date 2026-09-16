@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tweet - Minimal Focus Extension</title>
+    <link rel="stylesheet" href="options.css">
+    <style>
+      :root {
+        --muted: color-mix(in srgb, currentColor 55%, transparent);
+        --line: color-mix(in srgb, currentColor 18%, transparent);
+        --accent: #1d9bf0;
+      }
+      body { max-width: 550px; margin: 24px auto; }
+      #status { color: var(--muted); }
+      #tweet[hidden] { display: none; }
+      .author { display: flex; align-items: center; gap: 12px; }
+      .avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+      .who { display: flex; flex-direction: column; line-height: 1.3; }
+      .name { font-weight: 700; }
+      .handle, .date { color: var(--muted); font-size: 15px; }
+      .reply { color: var(--accent); margin: 10px 0 0; font-size: 15px; }
+      .text { margin: 14px 0 0; font-size: 19px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .text a, .link { color: var(--accent); text-decoration: none; }
+      .mention, .hashtag, .symbol { color: var(--accent); }
+      .media { display: block; width: 100%; margin-top: 12px; border-radius: 16px; }
+      .quote { margin-top: 14px; padding: 12px; border: 1px solid var(--line); border-radius: 16px; }
+      .quote .text { margin-top: 8px; font-size: 16px; }
+      .quote .avatar { width: 24px; height: 24px; }
+      .quote .date { display: none; }
+    </style>
+    <script src="tweet-format.js" defer></script>
+    <script src="tweet.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <p id="status" role="status">Loading tweet&hellip;</p>
+      <article id="tweet" hidden></article>
+    </main>
+  </body>
+</html>

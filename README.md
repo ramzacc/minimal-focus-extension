@@ -2,11 +2,15 @@
 
 Firefox extension for blocking domains and subdomains.
 
+Links to individual tweets (`x.com/<user>/status/<id>`, `twitter.com/...`) are not blocked. They open in a local viewer that renders the tweet's author, text and media from Twitter's syndication API, so no feed, replies or recommendations load.
+
+Links to individual videos (`youtube.com/watch?v=<id>`, `youtu.be/<id>`, `/shorts/<id>`) are not blocked either. They open a fixed 16:9 no-cookie player (`youtube-nocookie.com/embed/<id>`) with end-screen suggestions limited to the same channel, so no home feed or sidebar loads.
+
 Private windows require permission in `about:addons`. Not affiliated with Mozilla's Firefox Focus browser.
 
 Test: `node --test tests/*.test.cjs`
 
 Package for signing:
 ```sh
-zip firefox-focus.zip manifest.json domains.js background.js blocked.html options.html options.css options.js
+zip firefox-focus.zip manifest.json domains.js background.js blocked.html tweet.html tweet.js tweet-format.js youtube.html youtube.js options.html options.css options.js
 ```

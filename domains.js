@@ -36,5 +36,62 @@ globalThis.FocusDomains = {
       return false;
     }
     return [...domains].some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
+  },
+
+  // Hosts and paths the viewers need (tweet media + syndication API, and the
+  // no-cookie YouTube player). Exempt so content renders without the feed.
+  embedDomains: ["twimg.com"],
+  embedPaths: [/^\/(?:s\/player|youtubei|yts|api|pagead|ptracking|pcs)\//, /^\/(?:generate_204|csi_204|sw\.js)$/],
+
+  isEmbedAsset(url) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return false;
+    }
+    const hostname = parsed.hostname.replace(/\.$/, "");
+    if (this.embedDomains.some(domain => hostname === domain || hostname.endsWith(`.${domain}`))) return true;
+    const isYouTube = hostname === "youtube.com" || hostname.endsWith(".youtube.com") ||
+      hostname === "youtube-nocookie.com" || hostname.endsWith(".youtube-nocookie.com");
+    return isYouTube && this.embedPaths.some(pattern => pattern.test(parsed.pathname));
+  },
+
+  // Returns the numeric status id for a tweet URL, or null otherwise.
+  tweetId(url) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return null;
+    }
+    const hostname = parsed.hostname.replace(/\.$/, "");
+    const isTwitter = hostname === "twitter.com" || hostname === "x.com" ||
+      hostname.endsWith(".twitter.com") || hostname.endsWith(".x.com");
+    if (!isTwitter) return null;
+    const match = parsed.pathname.match(/\/(?:status|statuses)\/(\d+)/);
+    return match ? match[1] : null;
+  },
+
+  // Returns the 11-character video id for a YouTube URL, or null otherwise.
+  videoId(url) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return null;
+    }
+    const hostname = parsed.hostname.replace(/\.$/, "");
+    const isYouTube = hostname === "youtube.com" || hostname.endsWith(".youtube.com") ||
+      hostname === "youtube-nocookie.com" || hostname.endsWith(".youtube-nocookie.com") ||
+      hostname === "youtu.be";
+    if (!isYouTube) return null;
+    const valid = /^[A-Za-z0-9_-]{11}$/;
+    const query = parsed.searchParams.get("v");
+    if (query && valid.test(query)) return query;
+    const path = hostname === "youtu.be" ? parsed.pathname.slice(1) : parsed.pathname;
+    const match = path.match(/^\/(?:embed|shorts|live|v)\/([A-Za-z0-9_-]{11})/) ||
+      (hostname === "youtu.be" ? path.match(/^([A-Za-z0-9_-]{11})(?:\/|$)/) : null);
+    return match ? match[1] : null;
   }
 };
