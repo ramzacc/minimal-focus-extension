@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Minimal Focus Extension",
   "version": "1.3.0",
-  "description": "Blocks a list of domains and their subdomains, opening shared tweet links in a feed-free viewer.",
+  "description": "Blocks a list of domains and their subdomains, opening shared tweets, videos and Instagram posts in feed-free viewers.",
   "browser_specific_settings": {
     "gecko": {
       "id": "firefox-focus@local.invalid",
